@@ -26,6 +26,9 @@ struct Node {
     static constexpr size_t max_prim_count = make_bitmask<size_t>(prim_count_bits);
 
     std::array<T, Dim * 2> bounds;
+    // TODO use smaller type
+    size_t split_axis;
+
     struct Index {
         using Type = UnsignedIntType<IndexBits>;
         Type first_id   : std::numeric_limits<Type>::digits - prim_count_bits;

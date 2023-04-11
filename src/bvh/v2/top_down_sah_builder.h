@@ -64,7 +64,7 @@ protected:
     }
 
     virtual std::vector<size_t>& get_prim_ids() = 0;
-    virtual std::optional<size_t> try_split(const BBox& bbox, size_t begin, size_t end) = 0;
+    virtual std::optional<size_t> try_split(const BBox& bbox, size_t begin, size_t end, size_t &split_axis) = 0;
 
     BVH_ALWAYS_INLINE const std::vector<size_t>& get_prim_ids() const {
         return const_cast<TopDownSahBuilder*>(this)->get_prim_ids();
@@ -80,14 +80,17 @@ protected:
 
         std::stack<WorkItem> stack;
         stack.push(WorkItem { 0, 0, prim_count });
+
+        size_t split_axis;
         while (!stack.empty()) {
             auto item = stack.top();
             stack.pop();
 
             auto& node = bvh.nodes[item.node_id];
             if (item.size() > config_.min_leaf_size) {
-                if (auto split_pos = try_split(node.get_bbox(), item.begin, item.end)) {
+                if (auto split_pos = try_split(node.get_bbox(), item.begin, item.end, split_axis)) {
                     auto first_child = bvh.nodes.size();
+                    node.split_axis = split_axis;
                     node.make_inner(first_child);
 
                     bvh.nodes.resize(first_child + 2);

@@ -106,7 +106,7 @@ protected:
         for (size_t i = split_pos; i < end; ++i)   marks_[prim_ids_[axis][i]] = false;
     }
 
-    std::optional<size_t> try_split(const BBox& bbox, size_t begin, size_t end) override {
+    std::optional<size_t> try_split(const BBox& bbox, size_t begin, size_t end, size_t &split_axis) override {
         // Find the best split over all axes
         auto leaf_cost = config_.sah.get_non_split_cost(begin, end, bbox);
         auto best_split = Split { (begin + end + 1) / 2, leaf_cost, 0 };
@@ -135,6 +135,8 @@ protected:
                 prim_ids_[axis].begin() + end,
                 [&] (size_t i) { return marks_[i]; });
         }
+
+        split_axis = best_split.axis;
 
         return std::make_optional(best_split.pos);
     }

@@ -126,7 +126,7 @@ protected:
         return mid;
     }
 
-    std::optional<size_t> try_split(const BBox& bbox, size_t begin, size_t end) override {
+    std::optional<size_t> try_split(const BBox& bbox, size_t begin, size_t end, size_t &split_axis) override {
         PerAxisBins per_axis_bins;
         fill_bins(per_axis_bins, bbox, begin, end);
 
@@ -153,6 +153,7 @@ protected:
         if (index == begin || index == end)
             return fallback_split(largest_axis, begin, end);
 
+        split_axis = best_split.axis;
         return std::make_optional(index);
     }
 };
