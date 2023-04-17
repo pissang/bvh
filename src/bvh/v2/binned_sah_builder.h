@@ -140,6 +140,7 @@ protected:
         if (best_split.cost >= leaf_cost) {
             if (end - begin <= config_.max_leaf_size)
                 return std::nullopt;
+            split_axis = largest_axis;
             return fallback_split(largest_axis, begin, end);
         }
 
@@ -150,8 +151,10 @@ protected:
 
         size_t index = std::partition(prim_ids_.begin() + begin, prim_ids_.begin() + end,
             [&] (size_t i) { return centers_[i][best_split.axis] < split_pos; }) - prim_ids_.begin();
-        if (index == begin || index == end)
+        if (index == begin || index == end) {
+            split_axis = largest_axis;
             return fallback_split(largest_axis, begin, end);
+        }
 
         split_axis = best_split.axis;
         return std::make_optional(index);
